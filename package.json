@@ -1,0 +1,19 @@
+{
+  "name": "tracker-serverjs",
+  "version": "1.0.0",
+  "description": "user story management API",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/getfretless/tracker-serverjs.git"
+  },
+  "author": "Fretless LLC",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/getfretless/tracker-serverjs/issues"
+  },
+  "homepage": "https://github.com/getfretless/tracker-serverjs#readme"
+}
