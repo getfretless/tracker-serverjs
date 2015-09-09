@@ -1,7 +1,6 @@
 var express = require('express');
-var pg = require('pg');
+var withConnection = require('../lib/withConnection');
 var router = express.Router();
-var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/tracker-serverjs';
 
 /* GET boards listing. */
 router.get('/', function(req, res, next) {
@@ -21,7 +20,7 @@ router.get('/', function(req, res, next) {
     "    ) as stories" +
     "  from boards" +
     ") r;";
-  pg.connect(connectionString, function(err, client, done) {
+  withConnection(function(client) {
     client.query(sql)
       .on('row', function(row) {
         results.push(row.row_to_json);
@@ -30,9 +29,6 @@ router.get('/', function(req, res, next) {
         client.end();
         return res.json(results);
       });
-    if(err) {
-      console.log(err);
-    }
   });
 });
 
@@ -40,7 +36,7 @@ router.post('/', function(req, res) {
   var results = [];
   var data = {title: req.body.title, description: req.body.description, position: req.body.position};
   var insertSQL = "INSERT INTO boards(title, description, position, created_at, updated_at) values($1, $2, $3, NOW(), NOW()) RETURNING id";
-  pg.connect(connectionString, function(err, client, done) {
+  withConnection(function(client) {
     client.query(insertSQL, [data.title, data.description, data.position])
     .on('row', function(row) {
       client.query("SELECT * FROM boards WHERE id = $1", [row.id])
@@ -52,9 +48,6 @@ router.post('/', function(req, res) {
         return res.json(results);
       });
     });
-    if(err) {
-      console.log(err);
-    }
   });
 });
 
