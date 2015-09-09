@@ -36,4 +36,26 @@ router.get('/', function(req, res, next) {
   });
 });
 
+router.post('/', function(req, res) {
+  var results = [];
+  var data = {title: req.body.title, description: req.body.description, position: req.body.position};
+  var insertSQL = "INSERT INTO boards(title, description, position, created_at, updated_at) values($1, $2, $3, NOW(), NOW()) RETURNING id";
+  pg.connect(connectionString, function(err, client, done) {
+    client.query(insertSQL, [data.title, data.description, data.position])
+      .on('row', function(row) {
+        client.query("SELECT * FROM boards WHERE id = $1", [row.id])
+        .on('row', function(row) {
+        results.push(row);
+      })
+      .on('end', function() {
+        client.end();
+        return res.json(results);
+      });
+    });
+    if(err) {
+      console.log(err);
+    }
+  });
+});
+
 module.exports = router;
