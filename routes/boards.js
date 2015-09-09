@@ -22,14 +22,14 @@ router.get('/', function(req, res, next) {
     "  from boards" +
     ") r;";
   pg.connect(connectionString, function(err, client, done) {
-    var query = client.query(sql);
-    query.on('row', function(row) {
-      results.push(row.row_to_json);
-    });
-    query.on('end', function() {
-      client.end();
-      return res.json(results);
-    });
+    client.query(sql)
+      .on('row', function(row) {
+        results.push(row.row_to_json);
+      })
+      .on('end', function() {
+        client.end();
+        return res.json(results);
+      });
     if(err) {
       console.log(err);
     }
