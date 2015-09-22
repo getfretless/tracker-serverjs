@@ -1,6 +1,8 @@
 var express = require('express');
 var withConnection = require('../lib/withConnection');
 var router = express.Router();
+var expressJWT = require('express-jwt');
+var jwt = require('jsonwebtoken');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -8,6 +10,8 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/authenticate', function(req, res, next) {
+  var secret = 'shhhhhhhhared-secret'
+  expressJWT({ secret: secret }); // setup secret
   var user;
   var data = { email: req.body.email, password: req.body.password };
   var sql = 'SELECT * FROM users WHERE email = $1 LIMIT 1;';
@@ -18,7 +22,14 @@ router.post('/authenticate', function(req, res, next) {
       })
       .on('end', function() {
         client.end();
-        return res.json(user);
+        if (user) {
+          // sign token using secret and return token
+          var token = jwt.sign(user, secret, { expiresInMinutes: 60*5 });
+          return res.json({ token: token });
+        } else {
+          res.send(401, 'Wrong user or password');
+          return;
+        }
       });
   });
 });
